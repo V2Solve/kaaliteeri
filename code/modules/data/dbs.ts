@@ -116,6 +116,7 @@ export class Card
      }
 }
 
+
 /**
  * Represents a Deck.
  */
@@ -156,6 +157,29 @@ export class Deck
         })
 
         return numberofPoints;
+    }
+
+    removeCard (cardToRemove: Card)
+    {
+        let removalIndex = -1;
+
+        for (let i = 0; i < this.cards.length; i++)
+        {
+            let c = this.cards[i];
+            if (c.pip == cardToRemove.pip && c.suit == cardToRemove.suit) 
+            {
+                removalIndex = i;
+                break;
+            }
+        }
+
+        if (removalIndex < 0)
+        {
+            throw "Card to be removed was not found.";
+        }
+
+        // Okay lets remove this card from the deck.
+        return this.cards.splice(removalIndex,1)[0];
     }
 
     /**
@@ -279,6 +303,113 @@ export class Game
     decks: Array<Deck> = new Array<Deck>();
     completedHands: Array<Hand> = new Array<Hand>();
     currentHand: Hand;
+
+    constructor (id: string,room: Room)
+    {
+        this.uniqueId = id;
+        this.parentRoom = room;
+    }
+
+    addPlayer (newPlayer: GamingPlayer): void
+    {
+        // Lets check to see that the player is not already present..
+        for (let player of this.players)
+        {
+            if (player.persona.id == newPlayer.persona.id)
+            {
+                return; // The player is already in the Game.
+            }
+        }
+
+        if (this.getNoOfPlayers () >= 10)
+            throw "Enough players already.."
+
+        this.players.push(newPlayer);
+    }
+
+    getNoOfPlayers (): number
+    {
+        return this.players.length;
+    }
+
+    getNoOfObservers (): number
+    {
+        return this.observers.length;
+    }
+
+    /**
+     * Create the required number of Decks and remove extra cards as per no of folks;
+     */
+    createRequiredDecksAndClearUnRequiredCards ()
+    {
+        this.decks.length = 0;  // CLear the Decks..
+        let d1 = new Deck ("Deck1");
+        this.decks.push(d1);
+        let d2 = new Deck ("Deck2");
+
+        if (this.getNoOfPlayers () > 6)
+        this.decks.push(d2);
+        else
+        d2 = null;
+
+        let noOfCards = 52 * this.decks.length;
+        let cardsToRemove = noOfCards%this.getNoOfPlayers();
+
+        let cardsCanBeRemovedFromD1 = getRemovableCardsFromADeck ();
+        let cardsCanBeRemovedFromD2 = getRemovableCardsFromADeck ();
+
+        while (cardsToRemove > 0)
+        {
+            if (d1 != null)
+            {
+                let cardToRemove = cardsCanBeRemovedFromD1.pop();
+                if (cardToRemove == null)
+                    throw "No more removable cards in from Deck D1";
+                d1.removeCard(cardToRemove);
+                
+                cardsToRemove --;
+            }
+
+            if (d2 != null && cardsToRemove > 0)
+            {
+                let cardToRemove = cardsCanBeRemovedFromD2.pop();
+                if (cardToRemove == null)
+                    throw "No more removable cards in from Deck D2";
+
+                d2.removeCard(cardToRemove);
+                cardsToRemove --;
+            }
+        }
+    }
+
+
+    getNoOfPointsInGame (): number
+    {
+        let noOfPoints = 0;
+
+        for (let deck of this.decks)
+        {
+            noOfPoints += deck.getDeckPoints ();
+        }
+
+        return noOfPoints;
+    }
+
+
+    printGameInfo ()
+    {
+        console.log("GameId: " + this.uniqueId);
+        console.log("NoOfPlayers: " + this.getNoOfPlayers());
+        console.log("NoOfObservers: " + this.getNoOfObservers());
+        console.log("NoOfDecks: " + this.decks.length);
+        console.log("GamePoints: " + this.getNoOfPointsInGame ());
+
+        this.decks.forEach(element => {
+            console.log("- " + element.cards.length + "-");
+            element.printDeck ();
+            console.log("----------");
+        });
+    }
 }
 
 export class GamingCard
@@ -306,6 +437,12 @@ export class GamingPlayer
     persona: Person;
     allotedCards: Array<Card> = new Array ();
     game: Game; // The game that the player is in.
+
+    constructor(gm: Game,person: Person)
+    {
+        this.persona=person;
+        this.game = gm;    
+    }
     
     clearCards ()
     {
@@ -316,8 +453,6 @@ export class GamingPlayer
     {
         this.allotedCards.push(card);
     }
-
-
 }
 
 /**
@@ -336,26 +471,44 @@ export class Room
     roomName: string;
     admins: Array<Person> = new Array();  // Room Administrators.
     games: Array<Game> = new Array<Game>();
+}
 
-
+export function getRemovableCardsFromADeck () : Array<Card>
+{
+    let removableCards = new Array ();
+    removableCards.push(new Card(this,CardSuit.clubs,CardPip.six));
+    removableCards.push(new Card(this,CardSuit.hearts,CardPip.six));
+    removableCards.push(new Card(this,CardSuit.spades,CardPip.six));
+    removableCards.push(new Card(this,CardSuit.diamonds,CardPip.six));
+    removableCards.push(new Card(this,CardSuit.clubs,CardPip.four));
+    removableCards.push(new Card(this,CardSuit.hearts,CardPip.four));
+    removableCards.push(new Card(this,CardSuit.spades,CardPip.four));
+    removableCards.push(new Card(this,CardSuit.diamonds,CardPip.four));
+    removableCards.push(new Card(this,CardSuit.clubs,CardPip.three));
+    removableCards.push(new Card(this,CardSuit.hearts,CardPip.three));
+    removableCards.push(new Card(this,CardSuit.diamonds,CardPip.three));
+    removableCards.push(new Card(this,CardSuit.clubs,CardPip.two));
+    removableCards.push(new Card(this,CardSuit.hearts,CardPip.two));
+    removableCards.push(new Card(this,CardSuit.spades,CardPip.two));
+    removableCards.push(new Card(this,CardSuit.diamonds,CardPip.two));
+    return removableCards;
 }
 
 
 
+let room = new Room();
+let game = new Game("XYZ",room);
+game.addPlayer(new GamingPlayer(game,new Person("xyz","Saurin")))
+game.addPlayer(new GamingPlayer(game,new Person("avd","Mita")))
+game.addPlayer(new GamingPlayer(game,new Person("xfd","Sonu")))
+game.addPlayer(new GamingPlayer(game,new Person("skd","Niyati")))
+game.addPlayer(new GamingPlayer(game,new Person("iek","Pramit")))
+// game.addPlayer(new GamingPlayer(game,new Person("sld","Urmil")))
+// game.addPlayer(new GamingPlayer(game,new Person("lfs","Dilip")))
+// game.addPlayer(new GamingPlayer(game,new Person("ekd","Priya")))
+// game.addPlayer(new GamingPlayer(game,new Person("3kf","Koyal")))
+game.addPlayer(new GamingPlayer(game,new Person("sow","Madhu")))
 
-let d = new Deck ("MyDeck");
-d.printDeck ();
-console.log("After Shuffling..");
-d.shuffle ();
-d.printDeck ();
-console.log("After Shuffling..");
-d.shuffle ();
-d.printDeck ();
-console.log("After Shuffling..");
-d.shuffle ();
-d.printDeck ();
-console.log("After Shuffling..");
-d.shuffle ();
-d.printDeck ();
+game.createRequiredDecksAndClearUnRequiredCards ();
+game.printGameInfo ();
 
-console.log ("Deck Points: " + d.getDeckPoints());
