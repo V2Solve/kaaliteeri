@@ -320,10 +320,12 @@ export class GamingPlayer
 
 }
 
+/**
+ * Just a person that is a gaming observer.
+ */
 export class GamingObserver
 {
     persona: Person;
-
 
 }
 
