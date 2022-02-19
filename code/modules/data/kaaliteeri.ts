@@ -1,4 +1,4 @@
-import { BaseGame,GamingPlayer,CardSuit,Hand,Room,Card,CardPip,Deck} from "./dbs";
+import { BaseGame,GamingPlayer,CardSuit,Hand,Room,Card,CardPip,Deck} from "./gamebasics";
 import { Person } from "./usermanagement";
 
 export class KaaliTeeriGame extends BaseGame
