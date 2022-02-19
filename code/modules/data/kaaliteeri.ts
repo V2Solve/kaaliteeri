@@ -1,5 +1,6 @@
 import { BaseGame,GamingPlayer,CardSuit,Hand,Room,Card,CardPip,Deck} from "./gamebasics";
 import { Person } from "./usermanagement";
+import { printDeck, printGameInfo } from "./utility";
 
 export class KaaliTeeriGame extends BaseGame
 {
@@ -213,21 +214,6 @@ export class KaaliTeeriGame extends BaseGame
         return noOfPoints;
     }
 
-
-    printGameInfo ()
-    {
-        console.log("GameId: " + this.uniqueId);
-        console.log("NoOfPlayers: " + this.getNoOfPlayers());
-        console.log("NoOfObservers: " + this.getNoOfObservers());
-        console.log("NoOfDecks: " + this.decks.length);
-        console.log("GamePoints: " + this.getNoOfPointsInGame ());
-
-        this.decks.forEach(element => {
-            console.log("- " + element.cards.length + "-");
-            element.printDeck ();
-            console.log("----------");
-        });
-    }
 }
 
 
@@ -245,5 +231,5 @@ game.addGamingPlayer(new GamingPlayer(game,new Person("iek","Pramit")))
 game.addGamingPlayer(new GamingPlayer(game,new Person("sow","Madhu")))
 
 game.createRequiredDecksAndClearUnRequiredCards ();
-game.printGameInfo ();
+printGameInfo (game);
 

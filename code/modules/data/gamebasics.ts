@@ -45,47 +45,6 @@ export class Card
      }
 
 
-     printSuit () : string
-     {
-         switch (this.suit)
-         {
-             case CardSuit.clubs: return 'C';
-             case CardSuit.hearts: return 'H';
-             case CardSuit.diamonds: return 'D';
-             case CardSuit.spades: return 'S';
-             default:
-                 return 'X';
-         }
-     }
-
-     printPip () : string
-     {
-        switch (this.pip)
-        {
-            case CardPip.ace : return 'A';
-            case CardPip.two : return '2';
-            case CardPip.three : return '3';
-            case CardPip.four : return '4';
-            case CardPip.five : return '5';
-            case CardPip.six : return '6';
-            case CardPip.seven : return '7';
-            case CardPip.eight : return '8';
-            case CardPip.nine : return '9';
-            case CardPip.ten : return '0';
-            case CardPip.jack : return 'J';
-            case CardPip.queen : return 'Q';
-            case CardPip.king : return 'K';
-            case CardPip.joker : return '^';
-            default : return 'x';
-        }
-
-        return 'x';
-     }
-
-     printInfo (): string
-     {
-        return this.printSuit () + this.printPip ();
-     }
 }
 
 
@@ -164,17 +123,6 @@ export class Deck
             this.cards.push(card);
         })
     }
-
-    printDeck ()
-    {
-        console.log(this.getName ())
-        let printStr = '';
-        this.cards.forEach (card => {
-            printStr = printStr + ' ' + card.printInfo ();
-        })
-
-        console.log(printStr);
-    }
 }
 
 
@@ -208,6 +156,7 @@ export abstract class BaseGame
 
     abstract getCardPoints (card: Card): number;
     abstract addGamingPlayer (gamingPlayer: GamingPlayer);
+    
 }
 
 
